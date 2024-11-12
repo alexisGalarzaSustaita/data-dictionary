@@ -37,12 +37,12 @@ void reorderEntity(FILE* dataDictionary, ENTITY newEntity, long newEntityDirecti
     fread(&entityDirection, sizeof(long), 1, dataDictionary); 
 
     while (entityDirection != -1) {
-        fread(dataDictionary, entityDirection, SEEK_SET);
+        fseek(dataDictionary, entityDirection, SEEK_SET);
         fread(&currentEntity.name, DATA_BLOCK_SIZE, 1, dataDictionary); 
         fread(&currentEntity.dataPointer,sizeof(long), 1, dataDictionary); 
         fread(&currentEntity.attributesPointer, sizeof(long), 1, dataDictionary); 
         entityDataPointer = ftell(dataDictionary); 
-        fread(&currentEntity.nextEntity,  sizeof(long), 1 dataDictionary); 
+        fread(&currentEntity.nextEntity,  sizeof(long), 1 ,dataDictionary); 
         entityDirection = currentEntity.nextEntity; 
     }
 
