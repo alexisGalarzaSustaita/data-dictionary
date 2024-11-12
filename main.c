@@ -5,13 +5,34 @@ int main(int argc, char** argv) {
 
     printf("Enter a Data Dictionary Name: ");
     
-    // Usamos gets (no recomendado por razones de seguridad)
-    gets(name);
+    fgets(name, sizeog(name), stdin);
 
-    if (initializeDataDictionary(name) != EXIT_SUCCESS) {
-        fprintf(stderr, "Failed to initialize data dictionary.\n");
-        return EXIT_FAILURE;
-    }
+    FILE* dataDictionary = initializeDataDictionary(name); 
+    
+    ENTITY newEntity; 
 
-    return EXIT_SUCCESS;
+    printf("\nEnter the Entity name: "); 
+    fgets(newEntity.name, sizeof(newEntity.name), stdin); 
+    newEntity.dataPointer = EMPTY_POINTER; 
+    newEntity.attributesPointer = EMPTY_POINTER; 
+    newEntity.nextEntity = EMPTY_POINTER; 
+    
+    long entityDirection = appendEntity(dataDictionary, newEntity);
+
+    reorderEntities(dataDictionary, newEntity,entityDirection); 
+
+
+    printf("\nEnter the Entity name: "); 
+
+    fgets(newEntity.name, sizeof(newEntity.name), stdin); 
+    newEntity.dataPointer = EMPTY_POINTER; 
+    newEntity.attributesPointer = EMPTY_POINTER; 
+    newEntity.nextEntity = EMPTY_POINTER;
+
+    entityDirection = appendEntity(dataDictionary, newEntity);
+    reorderEntities(dataDictionary, newEntity, entityDirection);
+
+    fclose(dataDictionary); 
+
+    return 0; 
 }
