@@ -147,18 +147,37 @@ void reorderAttributes(FILE* dataDictionary, long currentAttributePointer, const
 
 /*void sampleEntity(FILE* dataDictionary){
     ENTITY newEntity;
-    long nextEntity = 0;
+    long position = -1;
+
+    printf("\nEntityes list:\n");
+    while (fread(&newEntity, sizeof(ENTITY), 1, dataDictionary) == 1) {
+        printf("Name: %s\n", newEntity.name);
+        printf("Data Pointer: %ld\n", newEntity.dataPointer);
+        printf("Attributes Pointer: %ld\n", newEntity.attributesPointer);
+        printf("Next Entity: %ld\n", newEntity.nextEntity);
+        printf("--------------------------\n");
+
+        if (newEntity.nextEntity != -1) {
+            position = newEntity.nextEntity;
+            fseek(dataDictionary, position * sizeof(ENTITY), SEEK_SET);
+        } else {
+            break;
+        }
+    }
+}*/
+
+/*long entityFind(FILE *dataDictionary, const char *name) {
+    ENTITY newEntity;
 
     rewind(dataDictionary);
 
-    printf("\nEntity List:\n");
-    while(fread(&newEntity, sizeof(ENTITY), 1, dataDictionary) == 1) {
-        printf("Name: %s\n", newEntity.name); 
-
-        if (newEntity.nextEntity != -1) {
-            nextEntity = newEntity.nextEntity;
-            fseek(dataDictionary, newEntity.nextEntity, SEEK_SET);
-        } 
+    while (fread(&newEntity, sizeof(ENTITY), 1, dataDictionary) == 1) {
+        if (newEntity.dataPointer == -1 && newEntity.nextEntity != 0) { 
+            if (strcmp(newEntity.name, name) == 0) {
+                return newEntity.attributesPointer;  
+            }
+        }
     }
-}
-*/
+
+    return -1; 
+}*/

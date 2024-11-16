@@ -11,8 +11,8 @@ int main(int argc, char** argv) {
     
     createEntity(dataDictionary);
     createEntity(dataDictionary);
-    
-    sampleEntity(dataDictionary); 
+ 
+    //sampleEntity(dataDictionary); 
 
     fclose(dataDictionary); 
 
