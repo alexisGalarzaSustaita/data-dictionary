@@ -19,7 +19,7 @@ int appendEntity(FILE* dataDictionary, ENTITY newEntity) {
     
     long entityDirection = ftell(dataDictionary);
 
-    fwrite(&newEntity.name, DATA_BLOCK_SIZE, 1, dataDictionary); 
+    fwrite(newEntity.name, DATA_BLOCK_SIZE, 1, dataDictionary); 
     fwrite(&newEntity.dataPointer, sizeof(long), 1, dataDictionary); 
     fwrite(&newEntity.attributesPointer, sizeof(long), 1, dataDictionary);
     fwrite(&newEntity.nextEntity, sizeof(long), 1, dataDictionary); 
@@ -27,26 +27,39 @@ int appendEntity(FILE* dataDictionary, ENTITY newEntity) {
     return entityDirection; 
 }
 
-void reorderEntity(FILE* dataDictionary, ENTITY newEntity, long newEntityDirection){
-    long entityDataPointer = 0;
-    long entityDirection; 
-    ENTITY currentEntity; 
+void reorderEntities(FILE* dataDictionary, long currentEntityPointer, const char* newEntityName, long newEntityDirection){
+    long currentEntityDirection = -1; 
 
     fseek(dataDictionary, entityDataPointer, SEEK_SET);
+    fread(&currentEntityDirection, sizeof(currentEntityDirection), 1, dataDictionary); 
 
-    fread(&entityDirection, sizeof(long), 1, dataDictionary); 
-
-    while (entityDirection != -1) {
-        fseek(dataDictionary, entityDirection, SEEK_SET);
-        fread(&currentEntity.name, DATA_BLOCK_SIZE, 1, dataDictionary); 
-        fread(&currentEntity.dataPointer,sizeof(long), 1, dataDictionary); 
-        fread(&currentEntity.attributesPointer, sizeof(long), 1, dataDictionary); 
-        entityDataPointer = ftell(dataDictionary); 
-        fread(&currentEntity.nextEntity,  sizeof(long), 1 ,dataDictionary); 
-        entityDirection = currentEntity.nextEntity; 
+    if (currentEntityDirection == -1) {
+        
+        fseek(dataDictionary, currentEntityPointer, SEEK_SET);
+        fwrite(&newEntityDirection, sizeof(long), 1, dataDictionary);
     }
+    else {
+        char currentEntityName[DATA_BLOCK_SIZE]; 
+        long nextEtityDirection; 
+        long nextHeaderPointer; 
 
-    fseek(dataDictionary, entityDataPointer, SEEK_SET); 
-    fwrite(&newEntityDirection, sizeof(long), 1, dataDictionary); 
-    
+
+        fseek(dataDictionary, currentEntityDirection, SEEK_SET);
+
+        fread(&currentEntityName, sizeof(char), DATA_BLOCK_SIZE, dataDictionary);
+        nextHeaderPointer = ftell(dataDictionary) + (sizeof(long) * 2);
+
+        if (strcmp(currentEntityName, newEntityName) < 0) {
+            
+            reorderEntities(dataDictionary, nextHeaderPointer, newEntityName, nextEtityDirection);
+        }
+        else {
+
+            fseek(dataDictionary, currentEntityPointer, SEEK_SET);
+            fwrite(&newEntityDirection, sizeof(long), 1, dataDictionary);
+
+            fseek(dataDictionary, newEntityDirection + DATA_BLOCK_SIZE + (sizeof(long) * 2), SEEK_SET);
+            fwrite(&currentEntityDirection, sizeof(long), 1, dataDictionary);
+        }
+    }
 }
