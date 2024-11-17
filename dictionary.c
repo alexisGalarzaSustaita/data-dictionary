@@ -146,38 +146,33 @@ void reorderAttributes(FILE* dataDictionary, long currentAttributePointer, const
 }
 
 /*void sampleEntity(FILE* dataDictionary){
-    ENTITY newEntity;
+    ENTITY currentEntity;
     long position = -1;
 
     printf("\nEntityes list:\n");
-    while (fread(&newEntity, sizeof(ENTITY), 1, dataDictionary) == 1) {
-        printf("Name: %s\n", newEntity.name);
-        printf("Data Pointer: %ld\n", newEntity.dataPointer);
-        printf("Attributes Pointer: %ld\n", newEntity.attributesPointer);
-        printf("Next Entity: %ld\n", newEntity.nextEntity);
+    while (fread(&currentEntity, sizeof(ENTITY), 1, dataDictionary) == 1) {
+        printf("Name: %s\n", currentEntity.name);
+        printf("Data Pointer: %ld\n", currentEntity.dataPointer);
+        printf("Attributes Pointer: %ld\n", currentEntity.attributesPointer);
+        printf("Next Entity: %ld\n", currentEntity.nextEntity);
         printf("--------------------------\n");
 
-        if (newEntity.nextEntity != -1) {
-            position = newEntity.nextEntity;
+        if (currentEntity.nextEntity != -1) {
+            position = currentEntity.nextEntity;
             fseek(dataDictionary, position * sizeof(ENTITY), SEEK_SET);
         } else {
             break;
         }
     }
-}*/
+}
 
-/*long entityFind(FILE *dataDictionary, const char *name) {
-    ENTITY newEntity;
+long entityFind(FILE *dataDictionary, const char *name) {
 
-    rewind(dataDictionary);
+    long attributeDirection; 
+    fseek(dataDictionary, 0, SEEK_SET); 
+    char currentEntityName[DATA_BLOCK_SIZE];
 
-    while (fread(&newEntity, sizeof(ENTITY), 1, dataDictionary) == 1) {
-        if (newEntity.dataPointer == -1 && newEntity.nextEntity != 0) { 
-            if (strcmp(newEntity.name, name) == 0) {
-                return newEntity.attributesPointer;  
-            }
-        }
-    }
-
-    return -1; 
+    fwrite(&currentEntityName, DATA_BLOCK_SIZE, 1, dataDictionary); 
+    if(strcmp(name, currentEntityName) == 0)
+       return ftell(dataDictionary) + sizeof(long);
 }*/
