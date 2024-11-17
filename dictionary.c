@@ -144,35 +144,3 @@ void reorderAttributes(FILE* dataDictionary, long currentAttributePointer, const
         }
     }
 }
-
-/*void sampleEntity(FILE* dataDictionary){
-    ENTITY currentEntity;
-    long position = -1;
-
-    printf("\nEntityes list:\n");
-    while (fread(&currentEntity, sizeof(ENTITY), 1, dataDictionary) == 1) {
-        printf("Name: %s\n", currentEntity.name);
-        printf("Data Pointer: %ld\n", currentEntity.dataPointer);
-        printf("Attributes Pointer: %ld\n", currentEntity.attributesPointer);
-        printf("Next Entity: %ld\n", currentEntity.nextEntity);
-        printf("--------------------------\n");
-
-        if (currentEntity.nextEntity != -1) {
-            position = currentEntity.nextEntity;
-            fseek(dataDictionary, position * sizeof(ENTITY), SEEK_SET);
-        } else {
-            break;
-        }
-    }
-}
-
-long entityFind(FILE *dataDictionary, const char *name) {
-
-    long attributeDirection; 
-    fseek(dataDictionary, 0, SEEK_SET); 
-    char currentEntityName[DATA_BLOCK_SIZE];
-
-    fwrite(&currentEntityName, DATA_BLOCK_SIZE, 1, dataDictionary); 
-    if(strcmp(name, currentEntityName) == 0)
-       return ftell(dataDictionary) + sizeof(long);
-}*/

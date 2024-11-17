@@ -35,7 +35,4 @@ void createAttribute(FILE* dataDictionary, ENTITY currentEntity);
 int appendAttribute(FILE* dataDictionary, ATTRIBUTE newAttribute); 
 void reorderAttributes(FILE* dataDictionary, long currentAttributePointer, const char* newAttributeName, long newAttributeDirection);
 
-void sampleEntity(FILE* dataDictionary); 
-long entitySearch(FILE* dataDictionary, const char *name); 
-
 #endif
