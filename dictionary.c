@@ -69,6 +69,7 @@ void createEntity(FILE* dataDictionary) {
 
     printf("\nEnter the Entity name: "); 
     fgets(newEntity.name, sizeof(newEntity.name), stdin); 
+    newEntity.name[strcspn(newEntity.name, "\n")] = '\0';
     newEntity.dataPointer = EMPTY_POINTER;
     newEntity.attributesPointer = EMPTY_POINTER; 
     newEntity.nextEntity = EMPTY_POINTER; 
@@ -104,6 +105,7 @@ void createAttribute(FILE* dataDictionary, ENTITY currentEntity) {
     fflush(stdin);
     printf("\nEnter the Attribute name: "); 
     fgets(newAttribute.name, sizeof(newAttribute.name), stdin);
+    newAttribute.name[strcspn(newAttribute.name, "\n")] = '\0';
     fflush(stdin);
     printf("\nIs primary key? 0)false 1)true: ");
     fgets(response, sizeof(response), stdin);
@@ -176,7 +178,7 @@ void reorderAttributes(FILE* dataDictionary, long currentAttributePointer, const
 }
 //Verificar con el profe las funciones
 //Muestra la lista de entidades con sus respectivos valores
-void showEntityes(FILE* dataDictionary) {
+void showEntityesComplete(FILE* dataDictionary) {
     char name[DATA_BLOCK_SIZE]; 
     long dataPointer = EMPTY_POINTER; 
     long attributesPointer = EMPTY_POINTER; 
@@ -195,18 +197,20 @@ void showEntityes(FILE* dataDictionary) {
             fread(&dataPointer, sizeof(long), 1, dataDictionary);
             fread(&attributesPointer, sizeof(long), 1, dataDictionary);
             fread(&nextEntityPointer, sizeof(long), 1, dataDictionary);
-            printf("  %s\t           %ld\t             %ld\t                   %ld\t\n", name, dataPointer, attributesPointer, nextEntityPointer); 
+            printf("  %s\t       %ld\t       %ld\t        %ld\t\n", name, dataPointer, attributesPointer, nextEntityPointer);
         }
     } 
 }
+
 
 // Función para pedir el nombre de la entidad y buscarlo posteriormente
 void requestEntityName(FILE* dataDictionary) {
     char name[DATA_BLOCK_SIZE]; 
 
-    showEntityes(dataDictionary);
+    showEntityesComplete(dataDictionary);
     printf("\nEnter the entity name: ");
     fgets(name, DATA_BLOCK_SIZE, stdin);
+    name[strcspn(name, "\n")] = '\0'; 
 
     findEntity(dataDictionary, name); 
 }
@@ -214,11 +218,10 @@ void requestEntityName(FILE* dataDictionary) {
 // Función para buscar la entidad en el archivo y añadir el atributo
 //checar el funcionamiento de la funcion 
 void findEntity(FILE* dataDictionary, const char *entityName) {
-    ENTITY currentEntity;  
+    ENTITY currentEntity; 
     long nextEntityPointer = EMPTY_POINTER; 
-    int found = 0; 
 
-    rewind(dataDictionary); 
+    rewind(dataDictionary);
 
     if (fread(&nextEntityPointer, sizeof(long), 1, dataDictionary) == 1) { 
         while (nextEntityPointer != -1) {
@@ -226,30 +229,29 @@ void findEntity(FILE* dataDictionary, const char *entityName) {
             fread(&currentEntity, sizeof(ENTITY), 1, dataDictionary); 
 
             if (strcmp(currentEntity.name, entityName) == 0) { 
-                found = 1;
                 captureAttribute(dataDictionary, currentEntity); 
-                break;  
+                return;
             } else {
-                fread(&nextEntityPointer, sizeof(long), 1, dataDictionary); 
+                nextEntityPointer = currentEntity.nextEntity; 
             }
         }
     }
 
-    if (!found) {
-        printf("Entity '%s' not found.\n", entityName);
-    }
+    printf("Entity '%s' not found.\n", entityName);
 }
 
 //Capturar los atributos de la entidad
 //checar el funcionamiento de la funcion
 void captureAttribute(FILE* dataDictionary, ENTITY currentEntity) {
-    char response[4];  
+    int response;  
 
     do {
+        fflush(stdin);
         createAttribute(dataDictionary, currentEntity); 
-        printf("\nAdd another attribute? (yes/no): ");
-        fgets(response, sizeof(response), stdin);
-    } while (strcmp(response, "yes") == 0);
+        printf("\nAdd another attribute? 1)yes 2)no : ");
+        scanf("%d", &response); 
+        fflush(stdin); 
+    } while (response == 1);
 }
 //Asignar el tamaño del atributo
 void attributeSize(ATTRIBUTE newAtribute){
@@ -271,7 +273,7 @@ void attributeSize(ATTRIBUTE newAtribute){
         case 4:
             printf("Enter string size: ");
             scanf("%d", &number); 
-            getchar();  // Limpia buffer después de `scanf`
+            fflush(stdin);
             newAtribute.size = sizeof(char) * number; 
             break; 
 
