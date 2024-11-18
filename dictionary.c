@@ -164,24 +164,6 @@ void showEntityes(FILE* dataDictionary) {
         }
     } 
 }
-/*
-void searchEntity(FILE* dataDictionary, const char entityName){
-    char name[DATA_BLOCK_SIZE]; 
-    long temp; 
-    long nextEntity = EMPTY_POINTER; 
-
-    rewind(dataDictionary); 
-
-    if(fread(&nextEntity, sizeof(long), 1, dataDictionary) == 1){
-        while(nextEntity != EMPTY_POINTER){
-            fread(&name, DATA_BLOCK_SIZE, 1, dataDictionary); 
-            if (strcmp(name, entityName) == 0){
-                fread(&temp, sizeof(long) * 2, 1, dataDictionary); 
-
-            }
-        }
-    }
-}*/
 
 // Función para pedir el nombre de la entidad
 void requestEntityName(FILE* dataDictionary) {
@@ -194,29 +176,25 @@ void requestEntityName(FILE* dataDictionary) {
 }
 
 // Función para buscar la entidad en el archivo y retornar attributesPointer
-void findEntity(FILE* dataDictionary, const char* entityName) {
-    char name[DATA_BLOCK_SIZE];  
+void findEntity(FILE* dataDictionary, const char *entityName) {
+    ENTITY currentEntity;  
     long nextEntityPointer = EMPTY_POINTER; 
-    long tempt = EMPTY_POINTER; 
-    long attributesPointer = EMPTY_POINTER;
+    int result = 0;
 
     rewind(dataDictionary); 
 
     if (fread(&nextEntityPointer, sizeof(long), 1, dataDictionary) == 1) { 
         while (nextEntityPointer != -1) {
             fseek(dataDictionary, nextEntityPointer, SEEK_SET);
-            fread(&name, DATA_BLOCK_SIZE, 1, dataDictionary); 
+            fread(&currentEntity, sizeof(ENTITY), 1, dataDictionary); 
 
-            if (strcmp(name, entityName) == 0) {
-                fread(&tempt, sizeof(long) * 2, 1, dataDictionary); 
-                fread(&attributesPointer, sizeof(long), 1, dataDictionary); 
-                break;
+            if (strcmp(currentEntity.name, entityName) == 0) { 
+                createAttribute(dataDictionary, currentEntity); 
             }
             else{
-                fread(&tempt, sizeof(long) * 2, 1, dataDictionary); 
-                fread(&nextEntityPointer, sizeof(long), 1, dataDictionary); 
+                fseek(dataDictionary, -(sizeof(ENTITY)), SEEK_CUR);
+                fread(&nextEntityPointer, DATA_BLOCK_SIZE + sizeof(long) * 3, 1, dataDictionary); 
             }
-
         }
     }
 }
