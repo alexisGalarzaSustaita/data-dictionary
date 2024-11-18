@@ -101,6 +101,7 @@ void createAttribute(FILE* dataDictionary, ENTITY currentEntity) {
     long type;
     char response[10];
 
+    fflush(stdin);
     printf("\nEnter the Attribute name: "); 
     fgets(newAttribute.name, sizeof(newAttribute.name), stdin);
     fflush(stdin);
@@ -113,7 +114,7 @@ void createAttribute(FILE* dataDictionary, ENTITY currentEntity) {
         newAttribute.isPrimary = 0; 
     fflush(stdin);
     printf("\nAttribute type: 1)int 2)long 3)float 4)char 5)bool: ");
-    scanf("%d", &type);
+    scanf("%ld", &type);
     newAttribute.type = type; 
     attributeSize(newAttribute);
     newAttribute.nextAttribute = EMPTY_POINTER;
@@ -206,15 +207,16 @@ void requestEntityName(FILE* dataDictionary) {
     showEntityes(dataDictionary);
     printf("\nEnter the entity name: ");
     fgets(name, DATA_BLOCK_SIZE, stdin);
-    
+
     findEntity(dataDictionary, name); 
 }
 
 // Función para buscar la entidad en el archivo y añadir el atributo
+//checar el funcionamiento de la funcion 
 void findEntity(FILE* dataDictionary, const char *entityName) {
     ENTITY currentEntity;  
     long nextEntityPointer = EMPTY_POINTER; 
-    int result = 0;
+    int found = 0; 
 
     rewind(dataDictionary); 
 
@@ -224,16 +226,22 @@ void findEntity(FILE* dataDictionary, const char *entityName) {
             fread(&currentEntity, sizeof(ENTITY), 1, dataDictionary); 
 
             if (strcmp(currentEntity.name, entityName) == 0) { 
+                found = 1;
                 captureAttribute(dataDictionary, currentEntity); 
-                break;
+                break;  
             } else {
-                fseek(dataDictionary, -(sizeof(ENTITY)), SEEK_CUR);
-                fread(&nextEntityPointer, DATA_BLOCK_SIZE + sizeof(long) * 3, 1, dataDictionary); 
+                fread(&nextEntityPointer, sizeof(long), 1, dataDictionary); 
             }
         }
     }
+
+    if (!found) {
+        printf("Entity '%s' not found.\n", entityName);
+    }
 }
+
 //Capturar los atributos de la entidad
+//checar el funcionamiento de la funcion
 void captureAttribute(FILE* dataDictionary, ENTITY currentEntity) {
     char response[4];  
 
@@ -241,7 +249,7 @@ void captureAttribute(FILE* dataDictionary, ENTITY currentEntity) {
         createAttribute(dataDictionary, currentEntity); 
         printf("\nAdd another attribute? (yes/no): ");
         fgets(response, sizeof(response), stdin);
-    } while (tolower(response) == 'yes');
+    } while (strcmp(response, "yes") == 0);
 }
 //Asignar el tamaño del atributo
 void attributeSize(ATTRIBUTE newAtribute){
@@ -261,8 +269,9 @@ void attributeSize(ATTRIBUTE newAtribute){
             break;
 
         case 4:
-            printf("Chain size" );
+            printf("Enter string size: ");
             scanf("%d", &number); 
+            getchar();  // Limpia buffer después de `scanf`
             newAtribute.size = sizeof(char) * number; 
             break; 
 
@@ -271,6 +280,7 @@ void attributeSize(ATTRIBUTE newAtribute){
             break;
 
         default:
+            printf("Invalid attribute type.\n");
             break;
     }
 }

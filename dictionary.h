@@ -39,5 +39,7 @@ void reorderAttributes(FILE* dataDictionary, long currentAttributePointer, const
 void showEntityes(FILE* dataDictionary);
 void requestEntityName(FILE* dataDictionary);
 void findEntity(FILE* dataDictionary, const char* entityName); 
+void captureAttribute(FILE* dataDictionary, ENTITY currentEntity);
+void attributeSize(ATTRIBUTE newAtribute);
 
 #endif
