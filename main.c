@@ -11,6 +11,10 @@ int main(int argc, char** argv) {
     
     createEntity(dataDictionary);
     createEntity(dataDictionary);
+    createEntity(dataDictionary); 
+
+    showEntityes(dataDictionary); 
+    requestEntityName(dataDictionary); 
 
     fclose(dataDictionary); 
 
