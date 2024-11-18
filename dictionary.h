@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #define MAIN_ENTITY_POINTER 0
 #define EMPTY_POINTER -1

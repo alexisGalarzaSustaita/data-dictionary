@@ -1,5 +1,5 @@
 #include "dictionary.h"
-
+//Inicializa el diccionario de datos
 FILE* initializeDataDictionary(const char *dictionaryName) {
     long mainHeader = EMPTY_POINTER;
 
@@ -12,7 +12,7 @@ FILE* initializeDataDictionary(const char *dictionaryName) {
     return dictionary;
 }
 
-
+//Agrega una nueva entidad
 int appendEntity(FILE* dataDictionary, ENTITY newEntity) {
  
     fseek(dataDictionary, 0, SEEK_END);
@@ -26,7 +26,7 @@ int appendEntity(FILE* dataDictionary, ENTITY newEntity) {
 
     return entityDirection; 
 }
-
+//Ordena las entidades
 void reorderEntities(FILE* dataDictionary, long currentEntityPointer, const char* newEntityName, long newEntityDirection){
     long currentEntityDirection = -1; 
 
@@ -63,12 +63,11 @@ void reorderEntities(FILE* dataDictionary, long currentEntityPointer, const char
         }
     }
 }
-
+//Crea una nueva entidad
 void createEntity(FILE* dataDictionary) { 
     ENTITY newEntity; 
 
     printf("\nEnter the Entity name: "); 
-
     fgets(newEntity.name, sizeof(newEntity.name), stdin); 
     newEntity.dataPointer = EMPTY_POINTER;
     newEntity.attributesPointer = EMPTY_POINTER; 
@@ -78,21 +77,51 @@ void createEntity(FILE* dataDictionary) {
     reorderEntities(dataDictionary, MAIN_ENTITY_POINTER, newEntity.name, entityDirection);
 }
 
-void createAttribute(FILE* dataDictionary, ENTITY currentEntity) {
-    ATTRIBUTE newAttribute; 
+/*void createAttribute(FILE* dataDictionary, ENTITY currentEntity) {
+    ATTRIBUTE newAttribute;
+    long type;  
 
     printf("\nEnter the Attribute name: "); 
+    fgets(newAttribute.name, sizeof(newAttribute.name), stdin);
+    fflush(stdin); 
+    printf("\nIs primary key? (true/false)");
+    fgets(newAttribute.isPrimary, sizeof(bool), stdin); 
+    printf("\nAttribute type: 1)int 2)long 3)float 4)char 5)bool")
+    scanf("%ld", &type); 
+    newAttribute.type = type;
+    attributeSize(newAttribute);
+    newAttribute.nextAttribute =EMPTY_POINTER;  
 
-    fgets(newAttribute.name, sizeof(newAttribute.name), stdin); 
-    newAttribute.isPrimary = false; 
-    newAttribute.type = EMPTY_POINTER;
-    newAttribute.size = EMPTY_POINTER; 
-    newAttribute.nextAttribute = EMPTY_POINTER; 
+    long attributeDirection = appendAttribute(dataDictionary, newAttribute);
+    reorderAttributes(dataDictionary, currentEntity.attributesPointer, newAttribute.name, attributeDirection);
+}*/
+//Crea un nuevo atributo
+void createAttribute(FILE* dataDictionary, ENTITY currentEntity) {
+    ATTRIBUTE newAttribute;
+    long type;
+    char response[10];
+
+    printf("\nEnter the Attribute name: "); 
+    fgets(newAttribute.name, sizeof(newAttribute.name), stdin);
+    fflush(stdin);
+    printf("\nIs primary key? 0)false 1)true: ");
+    fgets(response, sizeof(response), stdin);
+
+    if(strcmp(response, "true") == 0)
+        newAttribute.isPrimary = 1; 
+    else
+        newAttribute.isPrimary = 0; 
+    fflush(stdin);
+    printf("\nAttribute type: 1)int 2)long 3)float 4)char 5)bool: ");
+    scanf("%d", &type);
+    newAttribute.type = type; 
+    attributeSize(newAttribute);
+    newAttribute.nextAttribute = EMPTY_POINTER;
 
     long attributeDirection = appendAttribute(dataDictionary, newAttribute);
     reorderAttributes(dataDictionary, currentEntity.attributesPointer, newAttribute.name, attributeDirection);
 }
-
+//Aggrega el atributo a la entidad a la que pertenece
 int appendAttribute(FILE* dataDictionary, ATTRIBUTE newAttribute) {
  
     fseek(dataDictionary, 0, SEEK_END);
@@ -107,7 +136,7 @@ int appendAttribute(FILE* dataDictionary, ATTRIBUTE newAttribute) {
 
     return attributeDirection; 
 }
-
+//Ordena los atributos de la entidad
 void reorderAttributes(FILE* dataDictionary, long currentAttributePointer, const char* newAttributeName, long newAttributeDirection){
     long currentAttributeDirection = -1; 
 
@@ -145,8 +174,11 @@ void reorderAttributes(FILE* dataDictionary, long currentAttributePointer, const
     }
 }
 //Verificar con el profe las funciones
+//Muestra la lista de entidades con sus respectivos valores
 void showEntityes(FILE* dataDictionary) {
     char name[DATA_BLOCK_SIZE]; 
+    long dataPointer = EMPTY_POINTER; 
+    long attributesPointer = EMPTY_POINTER; 
     long nextEntityPointer = EMPTY_POINTER; 
     long temp; 
 
@@ -154,28 +186,31 @@ void showEntityes(FILE* dataDictionary) {
 
     if (fread(&nextEntityPointer, sizeof(long), 1, dataDictionary) == 1) { 
         printf("\nEntityes List:\n");
-        
+        printf("Entity Name:\tData Pointer:\tAttributes Pointer:\tNext Entity:\t\n");
+
         while (nextEntityPointer != EMPTY_POINTER) {
             fseek(dataDictionary, nextEntityPointer, SEEK_SET);
             fread(&name, DATA_BLOCK_SIZE, 1, dataDictionary); 
-            printf("Name: %s", name);
-            fread(&temp, sizeof(long) * 2, 1, dataDictionary); 
-            fread(&nextEntityPointer, sizeof(long), 1, dataDictionary); 
+            fread(&dataPointer, sizeof(long), 1, dataDictionary);
+            fread(&attributesPointer, sizeof(long), 1, dataDictionary);
+            fread(&nextEntityPointer, sizeof(long), 1, dataDictionary);
+            printf("  %s\t           %ld\t             %ld\t                   %ld\t\n", name, dataPointer, attributesPointer, nextEntityPointer); 
         }
     } 
 }
 
-// Función para pedir el nombre de la entidad
+// Función para pedir el nombre de la entidad y buscarlo posteriormente
 void requestEntityName(FILE* dataDictionary) {
     char name[DATA_BLOCK_SIZE]; 
 
+    showEntityes(dataDictionary);
     printf("\nEnter the entity name: ");
     fgets(name, DATA_BLOCK_SIZE, stdin);
     
     findEntity(dataDictionary, name); 
 }
 
-// Función para buscar la entidad en el archivo y retornar attributesPointer
+// Función para buscar la entidad en el archivo y añadir el atributo
 void findEntity(FILE* dataDictionary, const char *entityName) {
     ENTITY currentEntity;  
     long nextEntityPointer = EMPTY_POINTER; 
@@ -189,12 +224,53 @@ void findEntity(FILE* dataDictionary, const char *entityName) {
             fread(&currentEntity, sizeof(ENTITY), 1, dataDictionary); 
 
             if (strcmp(currentEntity.name, entityName) == 0) { 
-                createAttribute(dataDictionary, currentEntity); 
-            }
-            else{
+                captureAttribute(dataDictionary, currentEntity); 
+                break;
+            } else {
                 fseek(dataDictionary, -(sizeof(ENTITY)), SEEK_CUR);
                 fread(&nextEntityPointer, DATA_BLOCK_SIZE + sizeof(long) * 3, 1, dataDictionary); 
             }
         }
+    }
+}
+//Capturar los atributos de la entidad
+void captureAttribute(FILE* dataDictionary, ENTITY currentEntity) {
+    char response[4];  
+
+    do {
+        createAttribute(dataDictionary, currentEntity); 
+        printf("\nAdd another attribute? (yes/no): ");
+        fgets(response, sizeof(response), stdin);
+    } while (tolower(response) == 'yes');
+}
+//Asignar el tamaño del atributo
+void attributeSize(ATTRIBUTE newAtribute){
+    int number; 
+
+    switch (newAtribute.type){
+        case 1:
+            newAtribute.size = sizeof(int); 
+            break;
+
+        case 2:
+            newAtribute.size = sizeof(long); 
+            break;
+
+        case 3:
+            newAtribute.size = sizeof(float); 
+            break;
+
+        case 4:
+            printf("Chain size" );
+            scanf("%d", &number); 
+            newAtribute.size = sizeof(char) * number; 
+            break; 
+
+        case 5: 
+            newAtribute.size = sizeof(bool); 
+            break;
+
+        default:
+            break;
     }
 }
