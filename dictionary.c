@@ -176,7 +176,7 @@ void reorderAttributes(FILE* dataDictionary, long currentAttributePointer, const
         }
     }
 }
-
+//Eliminar una entidad (Eliminacion lógica)
 ENTITY removeEntity(FILE* dataDictionary, long currentEntityPointer, const char* entityName){
     long currentEntityDirection = -1; 
 
@@ -243,5 +243,40 @@ void attributeSize(ATTRIBUTE newAtribute){
         default:
             printf("Invalid attribute type.\n");
             break;
+    }
+}
+
+ATTRIBUTE removeAttribute(FILE *dataDictionary, long currentAttributePointer, const char* attributeName){
+    long currentAtributeDirection = -1; 
+
+    fseek(dataDictionary, currentAtributeDirection, SEEK_SET); 
+    fread(&currentAtributeDirection, sizeof(long), 1, dataDictionary); 
+
+    if(currentAtributeDirection == -1){
+        return; 
+    }
+    else{
+        ATTRIBUTE resultAttribute; 
+        long nextAttributeDirection; 
+        long nextAttributePointer; 
+
+        fseek(dataDictionary, currentAtributeDirection, SEEK_SET); 
+        fread(resultAttribute.name, sizeof(char), DATA_BLOCK_SIZE, dataDictionary);
+        nextAttributePointer = ftell(dataDictionary) + sizeof(bool) + (sizeof(long) * 2); 
+
+        if(strcmp(resultAttribute.name, attributeName) == 0){
+            fread(resultAttribute.isPrimary, sizeof(bool), 1, dataDictionary); 
+            fread(resultAttribute.type, sizeof(long), 1, dataDictionary);
+            fread(resultAttribute.size, sizeof(long), 1, dataDictionary);  
+            fread(resultAttribute.nextAttribute, sizeof(long), 1, dataDictionary); 
+
+            fseek(dataDictionary, currentAttributePointer, SEEK_SET);
+            fwrite(&resultAttribute.nextAttribute, sizeof(long), 1, dataDictionary); 
+
+            return resultAttribute;
+        }
+        else{
+            return removeAttribute(dataDictionary, nextAttributePointer, attributeName);
+        } 
     }
 }

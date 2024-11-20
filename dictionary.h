@@ -39,6 +39,7 @@ void reorderAttributes(FILE* dataDictionary, long currentAttributePointer, const
 ENTITY removeEntity(FILE* dataDictionary, long currentEntityPointer, const char* entityName); 
 
 void attributeSize(ATTRIBUTE newAtribute);
+ATTRIBUTE removeAttribute(FILE *dataDictionary, long currentAttributePointer, const char* attributeName);
 
 
 #endif
