@@ -41,5 +41,4 @@ ENTITY removeEntity(FILE* dataDictionary, long currentEntityPointer, const char*
 void attributeSize(ATTRIBUTE newAtribute);
 ATTRIBUTE removeAttribute(FILE *dataDictionary, long currentAttributePointer, const char* attributeName);
 
-
 #endif

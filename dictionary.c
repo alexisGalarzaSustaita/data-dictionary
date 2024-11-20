@@ -184,7 +184,8 @@ ENTITY removeEntity(FILE* dataDictionary, long currentEntityPointer, const char*
     fread(&currentEntityDirection, sizeof(long), 1, dataDictionary); 
 
     if(currentEntityDirection == -1){
-        return; 
+        ENTITY emptyEntity = {0};
+        return emptyEntity; 
     }
     else{
         ENTITY resultEntity; 
@@ -246,37 +247,37 @@ void attributeSize(ATTRIBUTE newAtribute){
     }
 }
 
-ATTRIBUTE removeAttribute(FILE *dataDictionary, long currentAttributePointer, const char* attributeName){
-    long currentAtributeDirection = -1; 
+ATTRIBUTE removeAttribute(FILE* dataDictionary, long currentAttributePointer, const char* attributeName) {
+    long currentAttributeDirection = -1;
 
-    fseek(dataDictionary, currentAtributeDirection, SEEK_SET); 
-    fread(&currentAtributeDirection, sizeof(long), 1, dataDictionary); 
+    fseek(dataDictionary, currentAttributePointer, SEEK_SET);
+    fread(&currentAttributeDirection, sizeof(long), 1, dataDictionary);
 
-    if(currentAtributeDirection == -1){
-        return; 
-    }
-    else{
-        ATTRIBUTE resultAttribute; 
-        long nextAttributeDirection; 
-        long nextAttributePointer; 
+    if (currentAttributeDirection == -1) {
+        ATTRIBUTE emptyAttribute = {0};
+        return emptyAttribute;
+    } else {
+        ATTRIBUTE resultAttribute;
+        long nextAttributeDirection;
+        long nextHeaderPointer; 
 
-        fseek(dataDictionary, currentAtributeDirection, SEEK_SET); 
+        fseek(dataDictionary, currentAttributeDirection, SEEK_SET);
         fread(resultAttribute.name, sizeof(char), DATA_BLOCK_SIZE, dataDictionary);
-        nextAttributePointer = ftell(dataDictionary) + sizeof(bool) + (sizeof(long) * 2); 
+        nextHeaderPointer = ftell(dataDictionary) + sizeof(bool) + (sizeof(long) * 2); 
 
-        if(strcmp(resultAttribute.name, attributeName) == 0){
+        if (strcmp(resultAttribute.name, attributeName) == 0) {
             fread(resultAttribute.isPrimary, sizeof(bool), 1, dataDictionary); 
             fread(resultAttribute.type, sizeof(long), 1, dataDictionary);
             fread(resultAttribute.size, sizeof(long), 1, dataDictionary);  
-            fread(resultAttribute.nextAttribute, sizeof(long), 1, dataDictionary); 
+            fread(resultAttribute.nextAttribute, sizeof(long), 1, dataDictionary);         
 
             fseek(dataDictionary, currentAttributePointer, SEEK_SET);
-            fwrite(&resultAttribute.nextAttribute, sizeof(long), 1, dataDictionary); 
+            fwrite(&resultAttribute.nextAttribute, sizeof(long), 1, dataDictionary);
 
             return resultAttribute;
+        } else {
+            return removeAttribute(dataDictionary, nextHeaderPointer, attributeName);
         }
-        else{
-            return removeAttribute(dataDictionary, nextAttributePointer, attributeName);
-        } 
     }
 }
+
