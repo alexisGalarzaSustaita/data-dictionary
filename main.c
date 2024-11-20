@@ -13,9 +13,6 @@ int main(int argc, char** argv) {
     createEntity(dataDictionary);
     createEntity(dataDictionary); 
 
-    //showEntityesComplete(dataDictionary); 
-    requestEntityName(dataDictionary); 
-
     fclose(dataDictionary); 
 
     return 0; 

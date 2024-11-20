@@ -36,10 +36,8 @@ void createAttribute(FILE* dataDictionary, ENTITY currentEntity);
 int appendAttribute(FILE* dataDictionary, ATTRIBUTE newAttribute); 
 void reorderAttributes(FILE* dataDictionary, long currentAttributePointer, const char* newAttributeName, long newAttributeDirection);
 
-void showEntityesComplete(FILE* dataDictionary);
-void requestEntityName(FILE* dataDictionary);
-void findEntity(FILE* dataDictionary, const char* entityName); 
-void captureAttribute(FILE* dataDictionary, ENTITY currentEntity);
+ENTITY removeEntity(FILE* dataDictionary, long currentEntityPointer, const char* entityName); 
+
 void attributeSize(ATTRIBUTE newAtribute);
 
 

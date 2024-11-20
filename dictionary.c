@@ -171,88 +171,47 @@ void reorderAttributes(FILE* dataDictionary, long currentAttributePointer, const
             fseek(dataDictionary, currentAttributePointer, SEEK_SET);
             fwrite(&newAttributeDirection, sizeof(long), 1, dataDictionary);
 
-            fseek(dataDictionary, newAttributeDirection + DATA_BLOCK_SIZE + (sizeof(long) * 2), SEEK_SET);
+            fseek(dataDictionary, newAttributeDirection + DATA_BLOCK_SIZE + sizeof(bool) + (sizeof(long) * 2), SEEK_SET);
             fwrite(&currentAttributeDirection, sizeof(long), 1, dataDictionary);
         }
     }
 }
-//Verificar con el profe las funciones
-//Muestra la lista de entidades con sus respectivos valores
-void showEntityesComplete(FILE* dataDictionary) {
-    char name[DATA_BLOCK_SIZE]; 
-    long dataPointer = EMPTY_POINTER; 
-    long attributesPointer = EMPTY_POINTER; 
-    long nextEntityPointer = EMPTY_POINTER; 
-    long temp; 
 
-    rewind(dataDictionary); 
+ENTITY removeEntity(FILE* dataDictionary, long currentEntityPointer, const char* entityName){
+    long currentEntityDirection = -1; 
 
-    if (fread(&nextEntityPointer, sizeof(long), 1, dataDictionary) == 1) { 
-        printf("\nEntityes List:\n");
-        printf("Entity Name:\tData Pointer:\tAttributes Pointer:\tNext Entity:\t\n");
+    fseek(dataDictionary, currentEntityDirection, SEEK_SET); 
+    fread(&currentEntityDirection, sizeof(long), 1, dataDictionary); 
 
-        while (nextEntityPointer != EMPTY_POINTER) {
-            fseek(dataDictionary, nextEntityPointer, SEEK_SET);
-            fread(&name, DATA_BLOCK_SIZE, 1, dataDictionary); 
-            fread(&dataPointer, sizeof(long), 1, dataDictionary);
-            fread(&attributesPointer, sizeof(long), 1, dataDictionary);
-            fread(&nextEntityPointer, sizeof(long), 1, dataDictionary);
-            printf("  %s\t       %ld\t       %ld\t        %ld\t\n", name, dataPointer, attributesPointer, nextEntityPointer);
-        }
-    } 
-}
-
-
-// Función para pedir el nombre de la entidad y buscarlo posteriormente
-void requestEntityName(FILE* dataDictionary) {
-    char name[DATA_BLOCK_SIZE]; 
-
-    showEntityesComplete(dataDictionary);
-    printf("\nEnter the entity name: ");
-    fgets(name, DATA_BLOCK_SIZE, stdin);
-    name[strcspn(name, "\n")] = '\0'; 
-
-    findEntity(dataDictionary, name); 
-}
-
-// Función para buscar la entidad en el archivo y añadir el atributo
-//checar el funcionamiento de la funcion 
-void findEntity(FILE* dataDictionary, const char *entityName) {
-    ENTITY currentEntity; 
-    long nextEntityPointer = EMPTY_POINTER; 
-
-    rewind(dataDictionary);
-
-    if (fread(&nextEntityPointer, sizeof(long), 1, dataDictionary) == 1) { 
-        while (nextEntityPointer != -1) {
-            fseek(dataDictionary, nextEntityPointer, SEEK_SET);
-            fread(&currentEntity, sizeof(ENTITY), 1, dataDictionary); 
-
-            if (strcmp(currentEntity.name, entityName) == 0) { 
-                captureAttribute(dataDictionary, currentEntity); 
-                return;
-            } else {
-                nextEntityPointer = currentEntity.nextEntity; 
-            }
-        }
+    if(currentEntityDirection == -1){
+        return; 
     }
+    else{
+        ENTITY resultEntity; 
+        long nextEntityDirection; 
+        long nextHeaderPointer; 
 
-    printf("Entity '%s' not found.\n", entityName);
+        fseek(dataDictionary, currentEntityDirection, SEEK_SET); 
+        fread(resultEntity.name, sizeof(char), DATA_BLOCK_SIZE, dataDictionary);
+        nextHeaderPointer = ftell(dataDictionary) + (sizeof(long) * 2); 
+
+        if(strcmp(resultEntity.name, entityName) == 0){
+            fread(resultEntity.dataPointer, sizeof(long), 1, dataDictionary); 
+            fread(resultEntity.attributesPointer, sizeof(long), 1, dataDictionary); 
+            fread(resultEntity.nextEntity, sizeof(long), 1, dataDictionary); 
+
+            fseek(dataDictionary, currentEntityPointer, SEEK_SET);
+            fwrite(&resultEntity.nextEntity, sizeof(long), 1, dataDictionary); 
+
+            return resultEntity;
+        }
+        else{
+            return removeEntity(dataDictionary, nextHeaderPointer, entityName);
+        } 
+    }
 }
+//Verificar la funcion con el maestro
 
-//Capturar los atributos de la entidad
-//checar el funcionamiento de la funcion
-void captureAttribute(FILE* dataDictionary, ENTITY currentEntity) {
-    int response;  
-
-    do {
-        fflush(stdin);
-        createAttribute(dataDictionary, currentEntity); 
-        printf("\nAdd another attribute? 1)yes 2)no : ");
-        scanf("%d", &response); 
-        fflush(stdin); 
-    } while (response == 1);
-}
 //Asignar el tamaño del atributo
 void attributeSize(ATTRIBUTE newAtribute){
     int number; 
