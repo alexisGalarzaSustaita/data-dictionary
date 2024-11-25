@@ -281,23 +281,3 @@ ATTRIBUTE removeAttribute(FILE* dataDictionary, long currentAttributePointer, co
     }
 }
 
-
-void showEnityes(FILE* dataDictionary){
-    long currentEntityDirection = -1; 
-
-    fseek(dataDictionary, currentEntityDirection, SEEK_SET);
-    fread(&currentEntityDirection, sizeof(currentEntityDirection), 1, dataDictionary); 
-
-    if (currentEntityDirection == -1) {
-        char entityName[DATA_BLOCK_SIZE];
-        long temp;
-
-        While(currentEntityDirection != -1) { 
-            fseek(dataDictionary, currentEntityDirection, SEEK_SET);
-            fread(&entityName, DATA_BLOCK_SIZE, 1, dataDictionary);
-            fread(&temp, sizeof(long) * 2, 1, dataDictionary);
-            fread(&currentEntityDirection, sizeof(long), 1, dataDictionary);
-            printf("Name: %s ", entityName);
-        }        
-    }
-}
