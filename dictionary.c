@@ -197,9 +197,9 @@ ENTITY removeEntity(FILE* dataDictionary, long currentEntityPointer, const char*
         nextHeaderPointer = ftell(dataDictionary) + (sizeof(long) * 2); 
 
         if(strcmp(resultEntity.name, entityName) == 0){
-            fread(resultEntity.dataPointer, sizeof(long), 1, dataDictionary); 
-            fread(resultEntity.attributesPointer, sizeof(long), 1, dataDictionary); 
-            fread(resultEntity.nextEntity, sizeof(long), 1, dataDictionary); 
+            fread(&resultEntity.dataPointer, sizeof(long), 1, dataDictionary); 
+            fread(&resultEntity.attributesPointer, sizeof(long), 1, dataDictionary); 
+            fread(&resultEntity.nextEntity, sizeof(long), 1, dataDictionary); 
 
             fseek(dataDictionary, currentEntityPointer, SEEK_SET);
             fwrite(&resultEntity.nextEntity, sizeof(long), 1, dataDictionary); 
@@ -266,10 +266,10 @@ ATTRIBUTE removeAttribute(FILE* dataDictionary, long currentAttributePointer, co
         nextHeaderPointer = ftell(dataDictionary) + sizeof(bool) + (sizeof(long) * 2); 
 
         if (strcmp(resultAttribute.name, attributeName) == 0) {
-            fread(resultAttribute.isPrimary, sizeof(bool), 1, dataDictionary); 
-            fread(resultAttribute.type, sizeof(long), 1, dataDictionary);
-            fread(resultAttribute.size, sizeof(long), 1, dataDictionary);  
-            fread(resultAttribute.nextAttribute, sizeof(long), 1, dataDictionary);         
+            fread(&resultAttribute.isPrimary, sizeof(bool), 1, dataDictionary); 
+            fread(&resultAttribute.type, sizeof(long), 1, dataDictionary);
+            fread(&resultAttribute.size, sizeof(long), 1, dataDictionary);  
+            fread(&resultAttribute.nextAttribute, sizeof(long), 1, dataDictionary);         
 
             fseek(dataDictionary, currentAttributePointer, SEEK_SET);
             fwrite(&resultAttribute.nextAttribute, sizeof(long), 1, dataDictionary);
@@ -281,3 +281,25 @@ ATTRIBUTE removeAttribute(FILE* dataDictionary, long currentAttributePointer, co
     }
 }
 
+void showEntities(FILE* dataDictionary) {
+    long currentEntityDirection = -1;
+
+ 
+    fseek(dataDictionary, currentEntityDirection, SEEK_SET);
+    fread(&currentEntityDirection, sizeof(currentEntityDirection), 1, dataDictionary);
+
+    if(currentEntityDirection != -1){
+        printf("\nEntityes list:");
+
+    while (currentEntityDirection != -1) {
+        char entityName[DATA_BLOCK_SIZE];
+        long temp;
+
+        fseek(dataDictionary, currentEntityDirection, SEEK_SET);
+        fread(&entityName, DATA_BLOCK_SIZE, 1, dataDictionary);
+        printf("\nName: %s", entityName);
+        fseek(dataDictionary, ftell(dataDictionary) + sizeof(long) * 2,SEEK_SET);
+        fread(&currentEntityDirection, sizeof(long), 1, dataDictionary);
+    }
+  }
+}
