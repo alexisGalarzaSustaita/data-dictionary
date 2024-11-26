@@ -297,7 +297,6 @@ void captureEntities(FILE* dataDictionary) {
 ENTITY searchEntityByName(FILE* dataDictionary, const char* entityName) {
     long currentEntityDirection = -1;
 
-    // Leer el puntero principal de entidades
     fseek(dataDictionary, MAIN_ENTITY_POINTER, SEEK_SET);
     fread(&currentEntityDirection, sizeof(currentEntityDirection), 1, dataDictionary);
 
@@ -310,16 +309,14 @@ ENTITY searchEntityByName(FILE* dataDictionary, const char* entityName) {
         fread(&currentEntity.attributesPointer, sizeof(long), 1, dataDictionary);
         fread(&currentEntity.nextEntity, sizeof(long), 1, dataDictionary);
 
-        // Comparar el nombre de la entidad con el nombre buscado
         if (strcmp(currentEntity.name, entityName) == 0) {
             printf("\nEntity '%s' found.\n", currentEntity.name);
-            return currentEntity; // Devuelve la entidad encontrada
+            return currentEntity; 
         }
 
         currentEntityDirection = currentEntity.nextEntity;
     }
 
-    // Si no se encuentra la entidad
     printf("\nEntity '%s' not found.\n", entityName);
     ENTITY emptyEntity = {0};
     return emptyEntity;
@@ -341,16 +338,14 @@ void captureAttributes(FILE* dataDictionary, ENTITY currentEntity) {
 void captureAttributesForEntity(FILE* dataDictionary) {
     char entityName[DATA_BLOCK_SIZE];
 
-    showEntitiesWithAttributes(dataDictionary);
+    showEntities(dataDictionary);
 
     printf("\nEnter the name of the entity to add attributes: ");
     fgets(entityName, sizeof(entityName), stdin);
     entityName[strcspn(entityName, "\n")] = '\0'; 
 
-    // Buscar la entidad
     ENTITY entity = searchEntityByName(dataDictionary, entityName);
 
-    // Si la entidad fue encontrada, capturar atributos
     if (strlen(entity.name) > 0) {
         captureAttributes(dataDictionary, entity);
     } else {
@@ -411,26 +406,27 @@ void showAttributes(FILE* dataDictionary, long attributesPointer) {
 }
 
 void showEntities(FILE* dataDictionary) {
-    long currentEntityDirection = -1;
+  long currentEntityDirection = -1;
 
-    fseek(dataDictionary, MAIN_ENTITY_POINTER, SEEK_SET);
-    fread(&currentEntityDirection, sizeof(currentEntityDirection), 1, dataDictionary);
+  fseek(dataDictionary, MAIN_ENTITY_POINTER, SEEK_SET);
+  fread(&currentEntityDirection, sizeof(currentEntityDirection), 1, dataDictionary);
 
-    if (currentEntityDirection == EMPTY_POINTER) {
-        printf("\nNo entities found.\n");
-        return;
-    }
+  if (currentEntityDirection == EMPTY_POINTER) {
+    printf("\nNo entities found.\n");
+    return;
+  }
 
-    printf("\n--- Entities List ---\n");
-    while (currentEntityDirection != EMPTY_POINTER) {
-        ENTITY currentEntity;
+  printf("\n--- Entities List ---\n");
+  while (currentEntityDirection != EMPTY_POINTER) {
+    ENTITY currentEntity;
 
-        fseek(dataDictionary, currentEntityDirection, SEEK_SET);
-        fread(currentEntity.name, DATA_BLOCK_SIZE, 1, dataDictionary);
-        fread(&currentEntity.dataPointer, sizeof(long), 1, dataDictionary);
-        fread(&currentEntity.attributesPointer, sizeof(long), 1, dataDictionary);
-        fread(&currentEntityDirection, sizeof(long), 1, dataDictionary);
+    fseek(dataDictionary, currentEntityDirection, SEEK_SET);
+    fread(currentEntity.name, DATA_BLOCK_SIZE, 1, dataDictionary);
 
-        printf("\nEntity Name: %s\n", currentEntity.name);
-    }
+    fseek(dataDictionary, sizeof(long) * 2, SEEK_CUR); 
+
+    fread(&currentEntityDirection, sizeof(long), 1, dataDictionary);
+
+    printf("\nEntity Name: %s\n", currentEntity.name);
+  }
 }

@@ -15,7 +15,6 @@ int main(int argc, char** argv) {
 
     captureEntities(dataDictionary);
     captureAttributesForEntity(dataDictionary);
-    showEntitiesWithAttributes(dataDictionary);
 
     fclose(dataDictionary); 
 
