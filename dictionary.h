@@ -41,6 +41,12 @@ ENTITY removeEntity(FILE* dataDictionary, long currentEntityPointer, const char*
 void attributeSize(ATTRIBUTE newAtribute);
 ATTRIBUTE removeAttribute(FILE *dataDictionary, long currentAttributePointer, const char* attributeName);
 
+void captureEntities(FILE* dataDictionary);
+ENTITY searchEntityByName(FILE* dataDictionary, const char* entityName);
+void captureAttributes(FILE* dataDictionary, ENTITY currentEntity);
+void captureAttributesForEntity(FILE* dataDictionary);
+void showEntitiesWithAttributes(FILE* dataDictionary);
+void showAttributes(FILE* dataDictionary, long attributesPointer);
 void showEntities(FILE* dataDictionary);
 
 #endif

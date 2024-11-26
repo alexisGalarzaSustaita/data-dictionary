@@ -9,11 +9,13 @@ int main(int argc, char** argv) {
 
     FILE* dataDictionary = initializeDataDictionary(name); 
     
-    createEntity(dataDictionary);
-    createEntity(dataDictionary);
-    createEntity(dataDictionary); 
+    //createEntity(dataDictionary);
+    //createEntity(dataDictionary);
+    //createEntity(dataDictionary); 
 
-    showEntities(dataDictionary);
+    captureEntities(dataDictionary);
+    captureAttributesForEntity(dataDictionary);
+    showEntitiesWithAttributes(dataDictionary);
 
     fclose(dataDictionary); 
 
