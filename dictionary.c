@@ -576,7 +576,7 @@ void mainMenu() {
                 fgets(dictionaryName, DATA_BLOCK_SIZE, stdin);
                 dictionaryName[strcspn(dictionaryName, "\n")] = '\0';
 
-                dataDictionary = initializeDataDictionary(dictionaryName, "r+");
+                dataDictionary = fopen(dictionaryName, "r+");
                 selectionEntitiesAttributes(dataDictionary);
                 break;
 
@@ -590,7 +590,6 @@ void mainMenu() {
                 break;
 
             case 0:
-                fclose(dataDictionary);
                 printf("\nExiting...\n");
                 break;
                 
@@ -598,6 +597,7 @@ void mainMenu() {
                 printf("\nInvalid option. Try again.\n");
         }
     } while (option != 0);
+    fclose(dataDictionary);
 }
 
 //Menu de entidades: Sub-menu del menu principal
