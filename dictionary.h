@@ -26,7 +26,8 @@ typedef struct Attribute {
     long nextAttribute;
 } ATTRIBUTE;
 
-FILE* initializeDataDictionary(const char *dictionaryName);
+//FILE* initializeDataDictionary(const char *dictionaryName);
+FILE* initializeDataDictionary(const char *dictionaryName, const char *mode);
 
 int appendEntity(FILE* dataDicictionary, ENTITY newEntity); 
 void reorderEntities(FILE* dataDictionary, long currentEntityPointer, const char* newEntityName, long newEntityDirection); 
@@ -42,11 +43,18 @@ void attributeSize(ATTRIBUTE newAtribute);
 ATTRIBUTE removeAttribute(FILE *dataDictionary, long currentAttributePointer, const char* attributeName);
 
 void captureEntities(FILE* dataDictionary);
-ENTITY searchEntityByName(FILE* dataDictionary, const char* entityName);
+ENTITY searchEntityByNameForAttributes(FILE* dataDictionary, const char* entityName);
 void captureAttributes(FILE* dataDictionary, ENTITY currentEntity);
 void captureAttributesForEntity(FILE* dataDictionary);
 void showEntitiesWithAttributes(FILE* dataDictionary);
 void showAttributes(FILE* dataDictionary, long attributesPointer);
 void showEntities(FILE* dataDictionary);
+
+ENTITY searchEntityByNameForMetaData(FILE* dataDictionary, const char* entityName);
+void captureMetadata(FILE* dataDictionary, ENTITY* currentEntity);
+
+void mainMenu();
+void entityMenu(FILE* dataDictionary);
+void attributeMenu(FILE* dataDictionary);
 
 #endif
