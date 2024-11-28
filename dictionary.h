@@ -43,18 +43,20 @@ void attributeSize(ATTRIBUTE newAtribute);
 ATTRIBUTE removeAttribute(FILE *dataDictionary, long currentAttributePointer, const char* attributeName);
 
 void captureEntities(FILE* dataDictionary);
-ENTITY searchEntityByNameForAttributes(FILE* dataDictionary, const char* entityName);
+ENTITY searchEntityByName(FILE* dataDictionary, const char* entityName);
 void captureAttributes(FILE* dataDictionary, ENTITY currentEntity);
 void captureAttributesForEntity(FILE* dataDictionary);
 void showEntitiesWithAttributes(FILE* dataDictionary);
 void showAttributes(FILE* dataDictionary, long attributesPointer);
 void showEntities(FILE* dataDictionary);
 
-ENTITY searchEntityByNameForMetaData(FILE* dataDictionary, const char* entityName);
 void captureMetadata(FILE* dataDictionary, ENTITY* currentEntity);
 
 void mainMenu();
 void entityMenu(FILE* dataDictionary);
 void attributeMenu(FILE* dataDictionary);
+void selectionEntitiesAttributes(FILE* dataDictionary);
+void deleteEntity(FILE* dataDictionary);
+void deleteAttribute(FILE* dataDictionary);
 
 #endif

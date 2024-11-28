@@ -14,7 +14,7 @@
 FILE* initializeDataDictionary(const char *dictionaryName, const char *mode) {
     long mainHeader = EMPTY_POINTER;
 
-    printf("Initializing Data Dictionary...\n");
+    printf("\nInitializing Data Dictionary...\n");
 
     FILE *dictionary = fopen(dictionaryName, mode);
 
@@ -311,8 +311,8 @@ void captureEntities(FILE* dataDictionary) {
     }
 }
 
-//Buscar entidad por nombre: muestra una lista de los nombres de las entidades para que el usuario escriba la que entidad que quiere
-ENTITY searchEntityByNameForAttributes(FILE* dataDictionary, const char* entityName) {
+//Buscar entidad por nombre: muestra una lista de los nombres de las entidades para que el usuario escriba la que entidad que quiere buscar
+ENTITY searchEntityByName(FILE* dataDictionary, const char* entityName) {
     long currentEntityDirection = -1;
 
     fseek(dataDictionary, MAIN_ENTITY_POINTER, SEEK_SET);
@@ -365,7 +365,7 @@ void captureAttributesForEntity(FILE* dataDictionary) {
     fgets(entityName, sizeof(entityName), stdin);
     entityName[strcspn(entityName, "\n")] = '\0'; 
 
-    ENTITY entity = searchEntityByNameForAttributes(dataDictionary, entityName);
+    ENTITY entity = searchEntityByName(dataDictionary, entityName);
 
     if (strlen(entity.name) > 0) {
         captureAttributes(dataDictionary, entity);
@@ -457,34 +457,6 @@ void showEntities(FILE* dataDictionary) {
 }
 
 //Nuevas adiciones al programa
-//Busca entidad por nombre para los metadatos
-ENTITY searchEntityByNameForMetaData(FILE* dataDictionary, const char* entityName) {
-    long currentEntityDirection = -1;
-
-    fseek(dataDictionary, MAIN_ENTITY_POINTER, SEEK_SET);
-    fread(&currentEntityDirection, sizeof(currentEntityDirection), 1, dataDictionary);
-
-    while (currentEntityDirection != EMPTY_POINTER) {
-        ENTITY currentEntity;
-
-        fseek(dataDictionary, currentEntityDirection, SEEK_SET);
-        fread(currentEntity.name, DATA_BLOCK_SIZE, 1, dataDictionary);
-        fread(&currentEntity.dataPointer, sizeof(long), 1, dataDictionary);
-        fread(&currentEntity.attributesPointer, sizeof(long), 1, dataDictionary);
-        fread(&currentEntity.nextEntity, sizeof(long), 1, dataDictionary);
-
-        if (strcmp(currentEntity.name, entityName) == 0) {
-            printf("\nEntity '%s' found.\n", currentEntity.name);
-            return currentEntity; 
-        }
-
-        currentEntityDirection = currentEntity.nextEntity;
-    }
-
-    printf("\nEntity '%s' not found.\n", entityName);
-    ENTITY emptyEntity = {0};
-    return emptyEntity;
-}
 
 //Agregar metadatos
 void captureMetadata(FILE* dataDictionary, ENTITY* currentEntity) {
@@ -536,6 +508,7 @@ void captureMetadata(FILE* dataDictionary, ENTITY* currentEntity) {
     printf("Metadata captured successfully.\n");
 }
 
+//Capturar metadatos
 void captureMetaDataForEntity(FILE* dataDictionary) {
     char entityName[DATA_BLOCK_SIZE];
 
@@ -545,7 +518,7 @@ void captureMetaDataForEntity(FILE* dataDictionary) {
     fgets(entityName, sizeof(entityName), stdin);
     entityName[strcspn(entityName, "\n")] = '\0'; 
 
-    ENTITY entity = searchEntityByNameForMetaData(dataDictionary, entityName);
+    ENTITY entity = searchEntityByName(dataDictionary, entityName);
 
     if (strlen(entity.name) > 0) {
         captureAttributes(dataDictionary, entity);
@@ -558,6 +531,7 @@ void captureMetaDataForEntity(FILE* dataDictionary) {
 void mainMenu() {
     FILE* dataDictionary = NULL;
     int option;
+    char dictionaryName[DATA_BLOCK_SIZE];
 
     do {
         printf("\n--- Main Menu ---\n");
@@ -570,21 +544,21 @@ void mainMenu() {
 
         switch (option) {
             case 1:
-                char dictionaryName[DATA_BLOCK_SIZE];
                 printf("\nEnter the name of the dictionary to open: ");
                 fgets(dictionaryName, DATA_BLOCK_SIZE, stdin);
                 dictionaryName[strcspn(dictionaryName, "\n")] = '\0';
 
                 dataDictionary = initializeDataDictionary(dictionaryName, "r+");
+                selectionEntitiesAttributes(dataDictionary);
                 break;
 
             case 2:
-                char dictionaryName[DATA_BLOCK_SIZE];
                 printf("\nEnter the name for the new dictionary: ");
                 fgets(dictionaryName, sizeof(dictionaryName), stdin);
                 dictionaryName[strcspn(dictionaryName, "\n")] = '\0';
 
                 dataDictionary = initializeDataDictionary(dictionaryName, "w+");
+                selectionEntitiesAttributes(dataDictionary);
                 break;
 
             case 0:
@@ -604,7 +578,7 @@ void entityMenu(FILE* dataDictionary) {
 
     do {
         printf("\n--- Entity Menu ---\n");
-        printf("0) Back to Main Menu\n");
+        printf("0) Back to Entityes and Attributes Menu\n");
         printf("1) Create Entity\n");
         printf("2) Delete Entity\n");
         printf("3) Modify Entity\n");
@@ -618,13 +592,7 @@ void entityMenu(FILE* dataDictionary) {
                 captureEntities(dataDictionary);
                 break;
             case 2:
-                {
-                    char entityName[DATA_BLOCK_SIZE];
-                    printf("\nEnter the name of the entity to delete: ");
-                    fgets(entityName, sizeof(entityName), stdin);
-                    entityName[strcspn(entityName, "\n")] = '\0'; // Remover salto de línea
-                    removeEntity(dataDictionary, MAIN_ENTITY_POINTER, entityName);
-                }
+                deleteEntity(dataDictionary);
                 break;
             case 3:
                 //modifyEntity(dataDictionary);
@@ -633,8 +601,8 @@ void entityMenu(FILE* dataDictionary) {
                 showEntities(dataDictionary);
                 break;
             case 0:
-                printf("\nReturning to Main Menu...\n");
-                mainMenu(dataDictionary);
+                printf("\nReturning to Entityes and Attribute Menu...\n");
+                selectionEntitiesAttributes(dataDictionary);
                 break;
             default:
                 printf("\nInvalid option. Try again.\n");
@@ -648,7 +616,7 @@ void attributeMenu(FILE* dataDictionary) {
 
     do {
         printf("\n--- Attribute Menu ---\n");
-        printf("0) Back to Main Menu\n");
+        printf("0) Back to Entityes and Attributes Menu\n");
         printf("1) Create Attribute\n");
         printf("2) Delete Attribute\n");
         printf("3) Modify Attribute\n");
@@ -659,38 +627,10 @@ void attributeMenu(FILE* dataDictionary) {
 
         switch (option) {
             case 1:
-                {
-                    char entityName[DATA_BLOCK_SIZE];
-                    printf("\nEnter the name of the entity to add attributes: ");
-                    fgets(entityName, sizeof(entityName), stdin);
-                    entityName[strcspn(entityName, "\n")] = '\0'; // Remover salto de línea
-
-                    ENTITY entity = searchEntityByNameForAttributes(dataDictionary, entityName);
-                    if (strlen(entity.name) > 0) {
-                        createAttribute(dataDictionary, entity);
-                    } else {
-                        printf("\nEntity not found.\n");
-                    }
-                }
+                captureAttributesForEntity(dataDictionary);
                 break;
             case 2:
-                {
-                    char attributeName[DATA_BLOCK_SIZE];
-                    char entityName[DATA_BLOCK_SIZE];
-                    printf("\nEnter the entity name: ");
-                    fgets(entityName, sizeof(entityName), stdin);
-                    entityName[strcspn(entityName, "\n")] = '\0';
-                    printf("\nEnter the attribute name to delete: ");
-                    fgets(attributeName, sizeof(attributeName), stdin);
-                    attributeName[strcspn(attributeName, "\n")] = '\0';
-
-                    ENTITY entity = searchEntityByNameForAttributes(dataDictionary, entityName);
-                    if (strlen(entity.name) > 0) {
-                        removeAttribute(dataDictionary, entity.attributesPointer, attributeName);
-                    } else {
-                        printf("\nEntity not found.\n");
-                    }
-                }
+                deleteAttribute(dataDictionary);
                 break;
             case 3:
                 //modifyAttribute(dataDictionary);
@@ -699,10 +639,104 @@ void attributeMenu(FILE* dataDictionary) {
                 // Implementa una función para mostrar la lista de atributos
                 break;
             case 0:
-                printf("\nReturning to Main Menu...\n");
+                selectionEntitiesAttributes(dataDictionary);
+                printf("\nReturning to Entityes and Attributes Menu...\n");
                 break;
             default:
                 printf("\nInvalid option. Try again.\n");
         }
     } while (option != 0);
+}
+
+void selectionEntitiesAttributes(FILE* dataDictionary) {
+    int option; 
+
+    do{ 
+        printf("\n0)Back to main menu\n");
+        printf("1) Entityes Menu\n");
+        printf("2) Attributes Menu\n");
+        printf("Select an option: ");
+        scanf("%d", &option);
+        getchar(); 
+    
+        switch (option) {
+            case 1:
+                entityMenu(dataDictionary);
+                break;
+    
+            case 2: 
+                attributeMenu(dataDictionary);
+                break;
+    
+            case 0:
+                printf("\nReturning to Main Menu...\n");
+                mainMenu();
+                break;
+
+            default:
+                break;
+            }
+         }
+    while (option != 0);
+}
+
+//Borrar una entidad
+void deleteEntity(FILE* dataDictionary) {
+    char entityName[DATA_BLOCK_SIZE];
+
+    showEntities(dataDictionary);
+
+    printf("\nEnter the name of the entity to delete: ");
+    fgets(entityName, sizeof(entityName), stdin);
+    entityName[strcspn(entityName, "\n")] = '\0'; 
+
+    ENTITY entity = searchEntityByName(dataDictionary, entityName);
+
+    if (strlen(entity.name) > 0) {
+        long mainEntityPointer = EMPTY_POINTER;
+        fseek(dataDictionary, MAIN_ENTITY_POINTER, SEEK_SET);
+        fread(&mainEntityPointer, sizeof(long), 1, dataDictionary);
+
+        ENTITY resultEntity = removeEntity(dataDictionary, mainEntityPointer, entityName);
+
+        if (strlen(resultEntity.name) > 0) {
+            printf("\nEntity '%s' deleted successfully.\n", entityName);
+        } else {
+            printf("\nFailed to delete entity '%s'.\n", entityName);
+        }
+    } else {
+        printf("\nEntity '%s' not found. Cannot delete.\n", entityName);
+    }
+}
+
+//Borrar un atributo de una entidad
+void deleteAttribute(FILE* dataDictionary) {
+    char entityName[DATA_BLOCK_SIZE];
+    char attributeName[DATA_BLOCK_SIZE];
+
+    showEntities(dataDictionary); // Muestra las entidades disponibles
+
+    printf("\nEnter the name of the entity to view attributes: ");
+    fgets(entityName, sizeof(entityName), stdin);
+    entityName[strcspn(entityName, "\n")] = '\0'; // Elimina el salto de línea
+
+    ENTITY resultEntity = searchEntityByName(dataDictionary, entityName);
+
+    if (strlen(resultEntity.name) > 0) {
+        showAttributes(dataDictionary, resultEntity.attributesPointer); // Muestra los atributos de la entidad
+
+        printf("\nEnter the name of the attribute to delete: ");
+        fgets(attributeName, sizeof(attributeName), stdin);
+        attributeName[strcspn(attributeName, "\n")] = '\0'; // Elimina el salto de línea
+
+        ATTRIBUTE removedAttribute = removeAttribute(dataDictionary, resultEntity.attributesPointer, attributeName);
+
+        if (strlen(removedAttribute.name) > 0) {
+            printf("\nAttribute '%s' deleted successfully.\n", attributeName);
+        } else {
+            printf("\nAttribute '%s' not found. Cannot delete.\n", attributeName);
+        }
+    } else {
+        printf("\nEntity '%s' not found. Cannot delete attribute.\n", entityName);
+    }
 }

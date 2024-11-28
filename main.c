@@ -24,3 +24,10 @@ int main(int argc, char** argv) {
 
     return 0; 
 }
+
+//checar print attribute List
+//delete entity
+//delete attribute
+//modify attribute 
+//modify entity
+//No abre el diccionario ya creado, lo sobreescribe
