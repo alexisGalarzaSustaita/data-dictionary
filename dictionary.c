@@ -427,6 +427,34 @@ void showAttributes(FILE* dataDictionary, long attributesPointer) {
         printf("Size: %ld bytes\n", currentAttribute.size);
     }
 }
+/*void showAttributes(FILE* dataDictionary, long attributesPointer) {
+    long currentAttributeDirection = attributesPointer;
+
+    if (attributesPointer == EMPTY_POINTER) {
+        printf("\nNo attributes found for this entity.\n");
+        return;
+    }
+
+    printf("\n--- Attributes List ---\n");
+    while (attributesPointer != EMPTY_POINTER) {
+        ATTRIBUTE currentAttribute;
+
+        fseek(dataDictionary, attributesPointer, SEEK_SET);
+
+        // Lee la información del atributo
+        fread(currentAttribute.name, DATA_BLOCK_SIZE, 1, dataDictionary);
+        fread(&currentAttribute.isPrimary, sizeof(bool), 1, dataDictionary);
+        fread(&currentAttribute.type, sizeof(long), 1, dataDictionary);
+        fread(&currentAttribute.size, sizeof(long), 1, dataDictionary);
+        fread(&attributesPointer, sizeof(long), 1, dataDictionary);
+
+        printf("Name: %s\n", currentAttribute.name);
+        printf("Primary Key: %s\n", currentAttribute.isPrimary ? " 1)Yes" : "0)No");
+        printf("Type: %ld\n", currentAttribute.type);
+        printf("Size: %ld bytes\n", currentAttribute.size);
+    }
+}*/
+
 
 
 //Muestra los nombres de las entidades
@@ -636,7 +664,7 @@ void attributeMenu(FILE* dataDictionary) {
                 //modifyAttribute(dataDictionary);
                 break;
             case 4:
-                // Implementa una función para mostrar la lista de atributos
+                showEntitiesWithAttributes(dataDictionary);
                 break;
             case 0:
                 selectionEntitiesAttributes(dataDictionary);
